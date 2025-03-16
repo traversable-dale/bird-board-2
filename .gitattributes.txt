@@ -1,0 +1,6 @@
+git lfs track "*.mp3"
+git lfs track "*.wav"
+git lfs track "assets/*"
+git lfs track "assets/audio/atmosphere"
+git lfs track "assets/audio/nature"
+git lfs track "assets/audio/hours"
