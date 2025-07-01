@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TD OSC Control Panel</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body{font-family:sans-serif;background:#222;color:#eee;padding:2rem;max-width:700px;margin:auto}
+    h2{margin-top:2rem;border-bottom:1px solid #444}
+    label{display:block;margin:1rem 0 .4rem}
+    input[type=range]{width:100%}
+    .btn{display:inline-block;margin:.35rem .4rem;padding:.6rem 1rem;
+         background:#555;border:0;border-radius:4px;color:#fff;cursor:pointer}
+    .btn.danger{background:#b22222}
+  </style>
+</head>
+<body>
+  <h1>TD OSC Control Panel</h1>
+
+  <!-- ────────── VOLUME SLIDERS ────────── -->
+  <h2>Volume</h2>
+  <label>BIRDS (<span id="lbl_birds">0.50</span>)</label>
+  <input type="range" id="vol_birds"  min="0" max="1" step="0.05" value="0.5" data-topic="/vol_birds">
+
+  <label>AMBI (<span id="lbl_ambi">0.50</span>)</label>
+  <input type="range" id="vol_ambi"   min="0" max="1" step="0.05" value="0.5" data-topic="/vol_ambi">
+
+  <label>GLOBAL (<span id="lbl_global">0.50</span>)</label>
+  <input type="range" id="vol_global" min="0" max="1" step="0.05" value="0.5" data-topic="/vol_global">
+
+  <!-- ────────── PLAYBACK ────────── -->
+  <h2>Playback</h2>
+  <button type="button" class="btn" data-topic="/idle" data-val="1">IDLE</button>
+  <button type="button" class="btn" data-topic="/play" data-val="1">PLAY</button>
+  <button type="button" class="btn" data-topic="/stop" data-val="1">STOP</button>
+
+  <!-- ────────── TRACK SELECT ────────── -->
+  <h2>Tracks</h2>
+  <button type="button" class="btn" data-topic="/hotelcalifornia" data-val="1">Hotel California</button>
+  <button type="button" class="btn" data-topic="/likeavirgin"     data-val="1">Like a Virgin</button>
+  <button type="button" class="btn" data-topic="/prettygirlrock"  data-val="1">Pretty Girl Rock</button>
+
+  <!-- ────────── SYSTEM ────────── -->
+  <h2>System</h2>
+  <button type="button" class="btn danger" data-topic="/reboot"   data-val="1">REBOOT</button>
+  <button type="button" class="btn danger" data-topic="/shutdown" data-val="1">SHUT DOWN</button>
+
+  <script>
+    /* ---- send helper ---- */
+    function send(topic, value){
+      fetch('/send',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({topic,value})
+      })
+      .then(()=>console.log('✓',topic,value))
+      .catch(err=>console.error('fetch err',err));
+    }
+
+    /* sliders */
+    document.querySelectorAll('input[type=range]').forEach(sl=>{
+      const lbl=document.getElementById('lbl_'+sl.id.split('_')[1]);
+      sl.addEventListener('input',e=>{
+        const v=e.target.value;
+        lbl.textContent=v;
+        send(sl.dataset.topic,v);
+      });
+    });
+
+    /* buttons */
+    document.querySelectorAll('.btn[data-topic]').forEach(btn=>{
+      btn.addEventListener('click',()=>send(btn.dataset.topic,btn.dataset.val));
+    });
+  </script>
+</body>
+</html>
