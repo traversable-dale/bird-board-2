@@ -2,6 +2,8 @@
 
 A TouchDesigner-based ambient audio playback system with web-based remote control interface. Designed for installations that require dynamic audio playback with day/night variations and special track triggers.
 
+This application uses sound recordings from [myNoise.net](www.mynoise.net)
+
 ## Overview
 
 BirdBoard plays ambient audio tracks with automatic day/night variations, featuring:
