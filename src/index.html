@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -12,10 +12,13 @@
     .btn{display:inline-block;margin:.35rem .4rem;padding:.6rem 1rem;
          background:#555;border:0;border-radius:4px;color:#fff;cursor:pointer}
     .btn.danger{background:#b22222}
+    .btn:hover{opacity:0.8}
+    #status{margin-top:1rem;padding:0.5rem;background:#333;border-radius:4px;font-family:monospace;font-size:0.9em}
   </style>
 </head>
 <body>
   <h1>TD OSC Control Panel</h1>
+  <div id="status">Ready - waiting for interaction...</div>
 
   <!-- ────────── VOLUME SLIDERS ────────── -->
   <h2>Volume</h2>
@@ -45,39 +48,62 @@
   <h2>System</h2>
   <button type="button" class="btn danger" data-topic="/reboot"   data-val="1">REBOOT</button>
   <button type="button" class="btn danger" data-topic="/shutdown" data-val="1">SHUT DOWN</button>
+  
   <!-- ────────── SYNC MODE ────────── -->
   <h2>Sync Mode</h2>
   <button type="button" class="btn" data-topic="/sync" data-val="1">SYNC</button>
   <button type="button" class="btn" data-topic="/async" data-val="1">ASYNC</button>
-  <!-- <button class="btn" data-topic="/set_async" data-val="sync">SYNC</button> -->
-  <!-- <button class="btn" data-topic="/set_sync" data-val="async">ASYNC</button> -->
 
   <script>
-    /* ---- send helper ---- */
+    const statusEl = document.getElementById('status');
+    
+    function updateStatus(msg) {
+      statusEl.textContent = msg;
+      console.log(msg);
+    }
+
+    /* ---- send helper using GET parameters ---- */
     function send(topic, value){
-      fetch('/send',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({topic,value})
-      })
-      .then(()=>console.log('✓',topic,value))
-      .catch(err=>console.error('fetch err',err));
+      const url = '/set?topic=' + encodeURIComponent(topic) + '&value=' + encodeURIComponent(value);
+      
+      console.log('📤 Sending:', topic, '=', value);
+      console.log('📤 URL:', url);
+      updateStatus('Sending: ' + topic + ' = ' + value);
+      
+      fetch(url)
+        .then(function(res) {
+          console.log('📥 Response status:', res.status);
+          return res.text();
+        })
+        .then(function(data) {
+          console.log('📥 Response data:', data);
+          updateStatus('✓ ' + data);
+        })
+        .catch(function(err) {
+          console.error('❌ Fetch error:', err);
+          updateStatus('❌ Error: ' + err.message);
+        });
     }
 
     /* sliders */
-    document.querySelectorAll('input[type=range]').forEach(sl=>{
-      const lbl=document.getElementById('lbl_'+sl.id.split('_')[1]);
-      sl.addEventListener('input',e=>{
-        const v=e.target.value;
-        lbl.textContent=v;
-        send(sl.dataset.topic,v);
+    document.querySelectorAll('input[type=range]').forEach(function(sl){
+      const lbl = document.getElementById('lbl_' + sl.id.split('_')[1]);
+      sl.addEventListener('input', function(e){
+        const v = e.target.value;
+        lbl.textContent = v;
+        send(sl.dataset.topic, v);
       });
     });
 
     /* buttons */
-    document.querySelectorAll('.btn[data-topic]').forEach(btn=>{
-      btn.addEventListener('click',()=>send(btn.dataset.topic,btn.dataset.val));
+    document.querySelectorAll('.btn[data-topic]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        console.log('🖱️ Button clicked:', btn.textContent);
+        send(btn.dataset.topic, btn.dataset.val);
+      });
     });
+    
+    console.log('✅ Page loaded and ready!');
   </script>
 </body>
 </html>
