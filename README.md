@@ -4,6 +4,8 @@ A TouchDesigner-based ambient audio playback system with web-based remote contro
 
 This application uses sound recordings from [myNoise.net](https://mynoise.net/noiseMachines.php). I encourage you to purchase some credits and download a few of your favorite tracks. You can always add some of your own audio recordings just the same.
 
+![app-GUI](assets/ref/app-GUI.png)
+
 ## Overview
 
 BirdBoard plays ambient audio tracks with automatic day/night variations, featuring:
